@@ -1,0 +1,59 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+#Going use Docker Compose to take advantage of swarm 
+# We need to more time to setup the swarm .... the container is not getting destroyed after the work is done 
+# Great for web servers however for model training we want the container to be destroyed after the work is done..
+#more research is required
+# docker stack deploy --compose-file docker-compose.yml azureml-training 
+
+trigger:
+  branches:
+    include: 
+    - feature/*
+    - features/*
+    - feature
+    exclude:
+    - develop
+    - Develop
+    - master
+    - main  
+
+pool: 
+    name: Default
+    demands: 
+    - Agent.Name -equals ii2-dmz-cluster-master
+    - Agent.ComputerName -equals ii2-dmz-cluster-master
+
+steps:
+
+  - task: Bash@3
+    inputs:
+      targetType: 'inline'
+      script: 
+           yes |  docker system prune -a
+
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: '.'
+      Contents: '**'
+      TargetFolder: '$(build.artifactstagingdirectory)'
+      CleanTargetFolder: true
+      OverWrite: true
+   
+  - task: Bash@3
+    inputs:
+       targetType: 'inline'
+       script: |
+         #echo kubectl cluster-info
+         skaffold run 
+
+       
+       
+         
+ 
+ 
+        
+

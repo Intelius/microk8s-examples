@@ -1,0 +1,23 @@
+apiVersion: skaffold/v2beta23
+kind: Config
+metadata:
+  name: microk-s
+build:
+  artifacts:
+    - image: frontend-image
+      context: src/frontend-service
+      docker:
+        dockerfile: Dockerfile
+    - image: voting-image
+      context: src/frontend-service
+      docker:
+        dockerfile: Dockerfile
+  tagPolicy:
+    sha256: {}
+deploy:
+  kubectl:
+    manifests:
+      - kubernetes-manifests/frontend-deployment.yaml
+      - kubernetes-manifests/frontend-service.yaml
+      - kubernetes-manifests/ingress.yaml
+      - kubernetes-manifests/voting.yaml
